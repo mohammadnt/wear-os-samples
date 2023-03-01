@@ -56,9 +56,9 @@
     <!-- Custom Style -->
     <color name="custom_primary_color">#FF7043</color>
     <color name="custom_secondary_color">#FF7043</color>
-    <color name="custom_background_color">#ffffff</color>
+    <color name="custom_background_color">#283593</color>
     <color name="custom_outer_element_color">#FF7043</color>
-    <color name="complication_color">#dd0083</color>
+    <color name="complication_color">#FFEE58</color>
 
     <!-- custom colors. -->
     <color name="transparent">#00000000</color>
