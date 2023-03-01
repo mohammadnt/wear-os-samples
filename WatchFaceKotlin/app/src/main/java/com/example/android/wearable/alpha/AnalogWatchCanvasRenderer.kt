@@ -16,12 +16,10 @@
 package com.example.android.wearable.alpha
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.Rect
+import android.graphics.*
 import android.util.Log
 import android.view.SurfaceHolder
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.withRotation
 import androidx.core.graphics.withScale
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -44,11 +42,8 @@ import java.time.Duration
 import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+
 
 // Default for how long each frame is displayed at expected frame rate.
 private const val FRAME_PERIOD_MS_DEFAULT: Long = 16L
@@ -205,8 +200,16 @@ class AnalogWatchCanvasRenderer(
                 ComplicationDrawable.getDrawable(
                     context,
                     watchFaceColors.complicationStyleDrawableId
-                )?.let {
-                    (complication.renderer as CanvasComplicationDrawable).drawable = it
+                )?.apply {
+                    activeStyle.run {
+                        //... other attributes
+                        setTextTypeface(ResourcesCompat.getFont(context!!, R.font.myfonts)!!)
+                        setTitleTypeface(ResourcesCompat.getFont(context!!, R.font.myfonts)!!)
+                        textSize = 500
+                        titleSize = 500
+                    }
+
+                    (complication.renderer as CanvasComplicationDrawable).drawable = this
                 }
             }
         }
@@ -239,14 +242,16 @@ class AnalogWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: AnalogSharedAssets
     ) {
-        val backgroundColor = if (renderParameters.drawMode == DrawMode.AMBIENT) {
-            watchFaceColors.ambientBackgroundColor
-        } else {
-            watchFaceColors.activeBackgroundColor
-        }
+//        val backgroundColor = if (renderParameters.drawMode == DrawMode.AMBIENT) {
+//            watchFaceColors.ambientBackgroundColor
+//        } else {
+//            watchFaceColors.activeBackgroundColor
+//        }
+//
+//        canvas.drawColor(backgroundColor)
 
-        canvas.drawColor(backgroundColor)
-
+        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.watch_bg)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
         // CanvasComplicationDrawable already obeys rendererParameters.
         drawComplications(canvas, zonedDateTime)
 

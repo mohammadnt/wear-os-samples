@@ -48,6 +48,10 @@ const val WHITE_COLOR_STYLE_ID = "white_style_id"
 private const val WHITE_COLOR_STYLE_NAME_RESOURCE_ID = R.string.white_style_name
 private const val WHITE_COLOR_STYLE_ICON_ID = R.drawable.white_style
 
+const val CUSTOM_COLOR_STYLE_ID = "custom_style_id"
+private const val CUSTOM_COLOR_STYLE_NAME_RESOURCE_ID = R.string.custom_style_name
+private const val CUSTOM_COLOR_STYLE_ICON_ID = R.drawable.white_style
+
 /**
  * Represents watch face color style options the user can select (includes the unique id, the
  * complication style resource id, and general watch face color style resource ids).
@@ -115,7 +119,18 @@ enum class ColorStyleIdAndResourceIds(
         id = WHITE_COLOR_STYLE_ID,
         nameResourceId = WHITE_COLOR_STYLE_NAME_RESOURCE_ID,
         iconResourceId = WHITE_COLOR_STYLE_ICON_ID,
-        complicationStyleDrawableId = R.drawable.complication_white_style,
+        complicationStyleDrawableId = R.drawable.complication_custom_style,
+        primaryColorId = R.color.white_primary_color,
+        secondaryColorId = R.color.white_secondary_color,
+        backgroundColorId = R.color.white_background_color,
+        outerElementColorId = R.color.white_outer_element_color
+    ),
+
+    CUSTOM(
+        id = CUSTOM_COLOR_STYLE_ID,
+        nameResourceId = WHITE_COLOR_STYLE_NAME_RESOURCE_ID,
+        iconResourceId = WHITE_COLOR_STYLE_ICON_ID,
+        complicationStyleDrawableId = R.drawable.complication_custom_style,
         primaryColorId = R.color.white_primary_color,
         secondaryColorId = R.color.white_secondary_color,
         backgroundColorId = R.color.white_background_color,
