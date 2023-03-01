@@ -111,6 +111,13 @@ class AnalogWatchCanvasRenderer(
     private lateinit var minuteHandBorder: Path
     private lateinit var secondHand: Path
 
+    private val isLight = true
+    private var bgResId: Int
+    private var hourHandResId: Int
+    private var minuteHandResId: Int
+    private var secondHandResId: Int
+
+
     // Changed when setting changes cause a change in the minute hand arm (triggered by user in
     // updateUserStyle() via userStyleRepository.addUserStyleListener()).
     private var armLengthChangedRecalculateClockHands: Boolean = false
@@ -125,6 +132,20 @@ class AnalogWatchCanvasRenderer(
                 updateWatchFaceData(userStyle)
             }
         }
+        if(isLight){
+            bgResId = R.drawable.analog_dashboard_white_bg_3
+            hourHandResId = R.drawable.analog_dashboard_hands_hr_dark
+            minuteHandResId = R.drawable.analog_dashboard_hands_min_dark
+            secondHandResId = R.drawable.analog_dashboard_hands_sec_red
+        }else{
+            bgResId = R.drawable.analog_dashboard_black_bg_3
+            hourHandResId = R.drawable.analog_dashboard_hands_hr_white
+            minuteHandResId = R.drawable.analog_dashboard_hands_min_white
+            secondHandResId = R.drawable.analog_dashboard_hands_sec_red
+        }
+
+
+
     }
 
     override suspend fun createSharedAssets(): AnalogSharedAssets {
@@ -242,18 +263,18 @@ class AnalogWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: AnalogSharedAssets
     ) {
-//        val backgroundColor = if (renderParameters.drawMode == DrawMode.AMBIENT) {
-//            watchFaceColors.ambientBackgroundColor
-//        } else {
-//            watchFaceColors.activeBackgroundColor
-//        }
-//
-//        canvas.drawColor(backgroundColor)
+        val backgroundColor = if (renderParameters.drawMode == DrawMode.AMBIENT) {
+            watchFaceColors.ambientBackgroundColor
+        } else {
+            watchFaceColors.activeBackgroundColor
+        }
+        Log.d("bgcolor", backgroundColor.toString())
+        canvas.drawColor(backgroundColor)
 
-        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.watch_bg)
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
+
         // CanvasComplicationDrawable already obeys rendererParameters.
         drawComplications(canvas, zonedDateTime)
+
 
         if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)) {
             drawClockHands(canvas, bounds, zonedDateTime)
@@ -263,15 +284,13 @@ class AnalogWatchCanvasRenderer(
             renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE) &&
             watchFaceData.drawHourPips
         ) {
-            drawNumberStyleOuterElement(
-                canvas,
-                bounds,
-                watchFaceData.numberRadiusFraction,
-                watchFaceData.numberStyleOuterCircleRadiusFraction,
-                watchFaceColors.activeOuterElementColor,
-                watchFaceData.numberStyleOuterCircleRadiusFraction,
-                watchFaceData.gapBetweenOuterCircleAndBorderFraction
+            val bitmap = BitmapFactory.decodeResource(
+                context.resources,
+                bgResId
             )
+            var mBitmap = Bitmap.createScaledBitmap(bitmap, canvas.width, canvas.height, false);
+
+            canvas.drawBitmap(mBitmap, 0f, 0f, null)
         }
     }
 
@@ -318,6 +337,82 @@ class AnalogWatchCanvasRenderer(
         val minuteRotation = secondOfDay.rem(secondsPerMinuteHandRotation) * 360.0f /
             secondsPerMinuteHandRotation
 
+//hour
+        val hourBitmap = BitmapFactory.decodeResource(
+            context.resources,
+            hourHandResId
+        )
+        var hourHand = Bitmap.createScaledBitmap(
+            hourBitmap,
+            (hourBitmap.width.toFloat() * (canvas.height.toFloat() / hourBitmap.height.toFloat())).toInt(),
+            canvas.height,
+            false
+        );
+        canvas.save();
+        canvas.rotate(hourRotation, centerX, centerY);
+        canvas.drawBitmap(
+            hourHand,
+            centerX - (hourHand.width / 2),
+            centerY - (hourHand.height / 2),
+            null
+        );
+        canvas.restore();
+
+        //minute
+        val minuteBitmap = BitmapFactory.decodeResource(
+            context.resources,
+            minuteHandResId
+        )
+        var minuteHand = Bitmap.createScaledBitmap(
+            minuteBitmap,
+            (minuteBitmap.width.toFloat() * (canvas.height.toFloat() / minuteBitmap.height.toFloat())).toInt(),
+            canvas.height,
+            false
+        );
+
+
+        canvas.save();
+        canvas.rotate(minuteRotation, centerX, centerY);
+        canvas.drawBitmap(
+            minuteHand,
+            centerX - (minuteHand.width / 2),
+            centerY - (minuteHand.height / 2),
+            null
+        );
+        canvas.restore();
+
+
+        //second
+        val secondsPerSecondHandRotation = Duration.ofMinutes(1).seconds
+        val secondsRotation = secondOfDay.rem(secondsPerSecondHandRotation) * 360.0f /
+            secondsPerSecondHandRotation
+        val secondBitmap = BitmapFactory.decodeResource(
+            context.resources,
+            secondHandResId
+        )
+        var secondHandBitmap = Bitmap.createScaledBitmap(
+            secondBitmap,
+            (secondBitmap.width.toFloat() * (canvas.height.toFloat() / secondBitmap.height.toFloat())).toInt(),
+            canvas.height,
+            false
+        );
+        val paint = Paint();
+        paint.setColorFilter(PorterDuffColorFilter(ResourcesCompat.getColor(context.resources, R.color.complication_color, null)
+        , PorterDuff.Mode.SRC_IN))
+
+
+        canvas.save();
+        canvas.rotate(secondsRotation, centerX, centerY);
+        canvas.drawBitmap(
+            secondHandBitmap,
+            centerX - (secondHandBitmap.width / 2),
+            centerY - (secondHandBitmap.height / 2),
+            paint
+        );
+        canvas.restore();
+
+
+        return;
         canvas.withScale(
             x = WATCH_HAND_SCALE,
             y = WATCH_HAND_SCALE,
@@ -335,7 +430,13 @@ class AnalogWatchCanvasRenderer(
 
             // Draw hour hand.
             withRotation(hourRotation, bounds.exactCenterX(), bounds.exactCenterY()) {
-                drawPath(hourHandBorder, clockHandPaint)
+                val bitmap = BitmapFactory.decodeResource(
+                    context.resources,
+                    R.drawable.analog_dashboard_hands_hr_white
+                )
+//                var mBitmap = Bitmap.createScaledBitmap(bitmap, (396f / (bitmap.width * canvas.width)).toInt(), (396f / (bitmap.height * canvas.height)).toInt(), false);
+
+                canvas.drawBitmap(bitmap, 0f, 0f, null)
             }
 
             // Draw minute hand.

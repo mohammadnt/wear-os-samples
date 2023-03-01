@@ -131,10 +131,10 @@ enum class ColorStyleIdAndResourceIds(
         nameResourceId = WHITE_COLOR_STYLE_NAME_RESOURCE_ID,
         iconResourceId = WHITE_COLOR_STYLE_ICON_ID,
         complicationStyleDrawableId = R.drawable.complication_custom_style,
-        primaryColorId = R.color.white_primary_color,
-        secondaryColorId = R.color.white_secondary_color,
-        backgroundColorId = R.color.white_background_color,
-        outerElementColorId = R.color.white_outer_element_color
+        primaryColorId = R.color.custom_primary_color,
+        secondaryColorId = R.color.custom_secondary_color,
+        backgroundColorId = R.color.custom_background_color,
+        outerElementColorId = R.color.custom_outer_element_color
     );
 
     companion object {
@@ -143,12 +143,9 @@ enum class ColorStyleIdAndResourceIds(
          */
         fun getColorStyleConfig(id: String): ColorStyleIdAndResourceIds {
             return when (id) {
-                AMBIENT.id -> AMBIENT
-                RED.id -> RED
-                GREEN.id -> GREEN
-                BLUE.id -> BLUE
-                WHITE.id -> WHITE
-                else -> WHITE
+
+                CUSTOM.id -> CUSTOM
+                else -> CUSTOM
             }
         }
 
