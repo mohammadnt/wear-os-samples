@@ -111,7 +111,7 @@ class AnalogWatchCanvasRenderer(
     private lateinit var minuteHandBorder: Path
     private lateinit var secondHand: Path
 
-    private val isLight = true
+    private val isLight = false
     private var bgResId: Int
     private var hourHandResId: Int
     private var minuteHandResId: Int
@@ -154,7 +154,7 @@ class AnalogWatchCanvasRenderer(
         var ch : Float = metrics.heightPixels.toFloat();
         val mainBgBitmap = BitmapFactory.decodeResource(
             context.resources,
-            R.drawable.bg1
+            R.drawable.redbg1
         )
         var mainBgBitmapScaled = Bitmap.createScaledBitmap(mainBgBitmap, cw.toInt(), ch.toInt(), false);
         this.mainBgBitmap = mainBgBitmapScaled;
