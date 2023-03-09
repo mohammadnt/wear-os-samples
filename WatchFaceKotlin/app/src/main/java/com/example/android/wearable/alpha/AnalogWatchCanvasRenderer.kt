@@ -111,7 +111,7 @@ class AnalogWatchCanvasRenderer(
     private lateinit var minuteHandBorder: Path
     private lateinit var secondHand: Path
 
-    private val isLight = false
+    private val isLight = true
     private var bgResId: Int
     private var hourHandResId: Int
     private var minuteHandResId: Int
@@ -138,70 +138,34 @@ class AnalogWatchCanvasRenderer(
                 updateWatchFaceData(userStyle)
             }
         }
-        if(isLight){
+        if (isLight) {
             bgResId = R.drawable.analog_dashboard_white_bg_3
             hourHandResId = R.drawable.analog_dashboard_hands_hr_dark
             minuteHandResId = R.drawable.analog_dashboard_hands_min_dark
             secondHandResId = R.drawable.analog_dashboard_hands_sec_red
-        }else{
+        } else {
             bgResId = R.drawable.analog_dashboard_black_bg_3
             hourHandResId = R.drawable.analog_dashboard_hands_hr_white
             minuteHandResId = R.drawable.analog_dashboard_hands_min_white
             secondHandResId = R.drawable.analog_dashboard_hands_sec_red
         }
-        val metrics: DisplayMetrics = Resources.getSystem().displayMetrics
-        var cw : Float = metrics.widthPixels.toFloat();
-        var ch : Float = metrics.heightPixels.toFloat();
-        val mainBgBitmap = BitmapFactory.decodeResource(
-            context.resources,
-            R.drawable.redbg1
-        )
-        var mainBgBitmapScaled = Bitmap.createScaledBitmap(mainBgBitmap, cw.toInt(), ch.toInt(), false);
-        this.mainBgBitmap = mainBgBitmapScaled;
-        val bitmap = BitmapFactory.decodeResource(
-            context.resources,
-            bgResId
-        )
-        var mBitmap = Bitmap.createScaledBitmap(bitmap, cw.toInt(), ch.toInt(), false);
-        this.bgBitmap = mBitmap;
-        val hourBitmap = BitmapFactory.decodeResource(
-            context.resources,
-            hourHandResId
-        )
-        var hourHand = Bitmap.createScaledBitmap(
-            hourBitmap,
-            (hourBitmap.width.toFloat() * (ch / hourBitmap.height.toFloat())).toInt(),
-            ch.toInt(),
-            false
-        );
-        this.hourBitmap = hourHand
-        val minuteBitmap = BitmapFactory.decodeResource(
-            context.resources,
-            minuteHandResId
-        )
-        var minuteHand = Bitmap.createScaledBitmap(
-            minuteBitmap,
-            (minuteBitmap.width.toFloat() * (ch / minuteBitmap.height.toFloat())).toInt(),
-            ch.toInt(),
-            false
-        );
+
+        this.mainBgBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.redbg1)
+        this.bgBitmap = BitmapFactory.decodeResource(context.resources, bgResId)
 
 
-        this.minuteBitmap = minuteHand
-        val secondBitmap = BitmapFactory.decodeResource(
-            context.resources,
-            secondHandResId
-        )
-        var secondHandBitmap = Bitmap.createScaledBitmap(
-            secondBitmap,
-            (secondBitmap.width.toFloat() * (ch / secondBitmap.height.toFloat())).toInt(),
-            ch.toInt(),
-            false
-        );
+        this.hourBitmap = BitmapFactory.decodeResource(context.resources, hourHandResId)
+        this.minuteBitmap = BitmapFactory.decodeResource(context.resources, minuteHandResId)
+        this.secondBitmap = BitmapFactory.decodeResource(            context.resources,            secondHandResId        )
+
         this.secondPaint = Paint();
-        this.secondPaint.setColorFilter(PorterDuffColorFilter(ResourcesCompat.getColor(context.resources, R.color.complication_color, null)
-            , PorterDuff.Mode.SRC_IN))
-        this.secondBitmap = secondHandBitmap;
+        this.secondPaint.setColorFilter(
+            PorterDuffColorFilter(
+                ResourcesCompat.getColor(context.resources, R.color.complication_color, null),
+                PorterDuff.Mode.SRC_IN
+            )
+        )
+
 
     }
 
@@ -320,14 +284,19 @@ class AnalogWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: AnalogSharedAssets
     ) {
-//        val backgroundColor = if (renderParameters.drawMode == DrawMode.AMBIENT) {
-//            watchFaceColors.ambientBackgroundColor
-//        } else {
-//            watchFaceColors.activeBackgroundColor
-//        }
-//        canvas.drawColor(backgroundColor)
+        var mainBgBitmapScaled =
+            Bitmap.createScaledBitmap(this.mainBgBitmap, canvas.width, canvas.height, false);
 
-        canvas.drawBitmap(mainBgBitmap, 0f, 0f, null)
+        var mBitmapScaled =
+            Bitmap.createScaledBitmap(this.bgBitmap, canvas.width, canvas.height, false);
+        val backgroundColor = if (renderParameters.drawMode == DrawMode.AMBIENT) {
+            watchFaceColors.ambientBackgroundColor
+        } else {
+            watchFaceColors.activeBackgroundColor
+        }
+        canvas.drawColor(backgroundColor)
+
+//        canvas.drawBitmap(mainBgBitmapScaled, 0f, 0f, null)
         // CanvasComplicationDrawable already obeys rendererParameters.
         drawComplications(canvas, zonedDateTime)
 
@@ -338,7 +307,7 @@ class AnalogWatchCanvasRenderer(
         ) {
 
 
-            canvas.drawBitmap(bgBitmap, 0f, 0f, null)
+            canvas.drawBitmap(mBitmapScaled, 0f, 0f, null)
         }
 
         if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)) {
@@ -390,14 +359,37 @@ class AnalogWatchCanvasRenderer(
         val minuteRotation = secondOfDay.rem(secondsPerMinuteHandRotation) * 360.0f /
             secondsPerMinuteHandRotation
 
+        val ch = canvas.height;
+        val cw = canvas.width;
+        var hourHandScaled = Bitmap.createScaledBitmap(
+            hourBitmap,
+            (hourBitmap.width.toFloat() * (ch / hourBitmap.height.toFloat())).toInt(),
+            ch.toInt(),
+            false
+        );
+
+        var minuteHandScaled = Bitmap.createScaledBitmap(
+            minuteBitmap,
+            (minuteBitmap.width.toFloat() * (ch / minuteBitmap.height.toFloat())).toInt(),
+            ch.toInt(),
+            false
+        );
+
+
+        var secondHandBitmapScaled = Bitmap.createScaledBitmap(
+            secondBitmap,
+            (secondBitmap.width.toFloat() * (ch / secondBitmap.height.toFloat())).toInt(),
+            ch.toInt(),
+            false
+        );
 //hour
 
         canvas.save();
         canvas.rotate(hourRotation, centerX, centerY);
         canvas.drawBitmap(
-            hourBitmap,
-            centerX - (hourBitmap.width / 2),
-            centerY - (hourBitmap.height / 2),
+            hourHandScaled,
+            centerX - (hourHandScaled.width / 2),
+            centerY - (hourHandScaled.height / 2),
             null
         );
         canvas.restore();
@@ -407,9 +399,9 @@ class AnalogWatchCanvasRenderer(
         canvas.save();
         canvas.rotate(minuteRotation, centerX, centerY);
         canvas.drawBitmap(
-            minuteBitmap,
-            centerX - (minuteBitmap.width / 2),
-            centerY - (minuteBitmap.height / 2),
+            minuteHandScaled,
+            centerX - (minuteHandScaled.width / 2),
+            centerY - (minuteHandScaled.height / 2),
             null
         );
         canvas.restore();
@@ -425,9 +417,9 @@ class AnalogWatchCanvasRenderer(
         canvas.save();
         canvas.rotate(secondsRotation, centerX, centerY);
         canvas.drawBitmap(
-            secondBitmap,
-            centerX - (secondBitmap.width / 2),
-            centerY - (secondBitmap.height / 2),
+            secondHandBitmapScaled,
+            centerX - (secondHandBitmapScaled.width / 2),
+            centerY - (secondHandBitmapScaled.height / 2),
             secondPaint
         );
         canvas.restore();
